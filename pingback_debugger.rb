@@ -1,7 +1,9 @@
 # require File.dirname(__FILE__) + '/vendor/gems/environment'
-Bundler.setup
 
 require "rubygems"
+require "bundler"
+Bundler.setup
+
 require "sinatra"
 require "json"
 require "sinatra"
