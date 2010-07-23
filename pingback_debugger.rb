@@ -35,7 +35,7 @@ class PayloadPrinter < Sinatra::Base
   end
   
   post "/" do
-    payload = "#{params.inspect}\n#{env['rack.input']}"
+    payload = "#{params.inspect}\n#{env['rack.input'].read.inspect}"
     Payload.new(:payload => payload).save
     nil
   end
