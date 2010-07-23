@@ -14,7 +14,7 @@ require "dm-postgres-adapter"
 
 class Payload
   include DataMapper::Resource
-  property :id,      Integer, :serial => true
+  property :id,      Serial
   property :payload, Text
 end
 
