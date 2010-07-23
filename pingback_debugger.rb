@@ -8,6 +8,7 @@ require "sinatra"
 require "json"
 require "sinatra"
 require "dm-core"
+require "dm-postgres-adapter"
 
 class Payload
   include DataMapper::Resource
