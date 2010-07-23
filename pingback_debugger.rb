@@ -4,6 +4,7 @@ require "rubygems"
 require "bundler"
 Bundler.setup
 
+require 'cgi'
 require "sinatra"
 require "json"
 require "sinatra"
@@ -31,7 +32,7 @@ end
 
 class PayloadPrinter < Sinatra::Base
   get "/" do
-    %{<pre>#{Payload.all(:order => :id.desc).map { |x| x.payload }.join("\n\n")}</pre>}
+    %{<pre>#{Payload.all(:order => :id.desc).map { |x| CGI.escapeHTML x.payload }.join("\n\n")}</pre>}
   end
   
   post "/" do
