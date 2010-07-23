@@ -1,2 +1,2 @@
-require 'payload_printer'
+require 'pingback_debugger'
 run PayloadPrinter

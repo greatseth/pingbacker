@@ -19,7 +19,8 @@ configure do
   # provides for you, something like: postgres://user:password@host/db, which
   # is what DM wants. This is also a convenient check wether we're in production
   # / not.
-  DataMapper.setup(:default, (ENV["DATABASE_URL"] || "sqlite3:///#{Dir.pwd}/development.sqlite3"))
+  DataMapper.setup(:default,
+    (ENV["DATABASE_URL"] || "sqlite3:///#{File.dirname __FILE__}/development.sqlite3"))
   DataMapper.auto_upgrade!
 end
 
@@ -29,7 +30,8 @@ class PayloadPrinter < Sinatra::Base
   end
   
   post "/" do
-    Payload.new(:payload => params[:payload]).save
+    payload = "#{params.inspect}\n#{env['rack.input']}"
+    Payload.new(:payload => payload).save
     nil
   end
 end
