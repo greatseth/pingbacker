@@ -8,6 +8,8 @@ require "sinatra"
 require "json"
 require "sinatra"
 require "dm-core"
+require "dm-migrations"
+require "dm-sqlite-adapter"
 require "dm-postgres-adapter"
 
 class Payload
