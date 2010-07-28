@@ -56,6 +56,11 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     assert_equal 0, Pingback.count
   end
   
+  test "listing pingbacks" do
+    get '/'
+    assert last_response.ok?
+  end
+  
   ###
   
   def create_pingback(options = {})

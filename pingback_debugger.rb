@@ -18,6 +18,14 @@ configure do
 end
 
 class PingbackDebugger < Sinatra::Base
+  get "/" do
+    output = Pingback.all(:order => :id.desc).map do |x|
+      CGI.escapeHTML x.body
+    end.join("\n\n")
+    
+    %{<pre>#{output}</pre>}
+  end
+  
   get "/latest.json" do
     @pingback = Pingback.first(:order => :id.desc)
     
