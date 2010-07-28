@@ -10,13 +10,15 @@ class PingbackDebuggerTest < Test::Unit::TestCase
   include Rack::Test::Methods
   def app; PingbackDebugger; end
   
-  def self.test(description, &block)
+  def self.test(description, &block);
     define_method("test #{description}", &block)
   end
   
   def teardown
     Pingback.all.destroy
   end
+  
+  ###
   
   test "receiving pinbacks" do
     assert_equal 0, Pingback.count
@@ -53,6 +55,8 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     assert last_response.ok?
     assert_equal 0, Pingback.count
   end
+  
+  ###
   
   def create_pingback(options = {})
     params   = options[:params]  || {}
