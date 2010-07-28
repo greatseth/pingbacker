@@ -48,6 +48,6 @@ class PingbackDebugger < Sinatra::Base
   
   get "/clear" do
     Pingback.all.destroy
-    nil
+    200
   end
 end
