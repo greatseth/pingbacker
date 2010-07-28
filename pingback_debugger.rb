@@ -2,21 +2,22 @@
 
 require "rubygems"
 require "bundler"
-Bundler.setup
+Bundler.setup :default
 
-require 'cgi'
 require "sinatra"
 require "json"
-require "sinatra"
+require "cgi"
 require "dm-core"
 require "dm-migrations"
 require "dm-sqlite-adapter"
 require "dm-postgres-adapter"
 
-class Payload
+class Pingback
   include DataMapper::Resource
   property :id,      Serial
-  property :payload, Text
+  property :headers, Text
+  property :params,  Text
+  property :body,    Text
 end
 
 configure do
@@ -26,21 +27,24 @@ configure do
   # is what DM wants. This is also a convenient check wether we're in production
   # / not.
   DataMapper.setup(:default,
-    (ENV["DATABASE_URL"] || "sqlite3:///#{File.dirname __FILE__}/development.sqlite3"))
+    (ENV["DATABASE_URL"] || "sqlite3:///#{File.dirname __FILE__}/#{ENV['RACK_ENV']}.sqlite3"))
   DataMapper.auto_upgrade!
 end
 
-class PayloadPrinter < Sinatra::Base
+class PingbackDebugger < Sinatra::Base
   get "/" do
-    %{<pre>#{Payload.all(:order => :id.desc).map { |x| CGI.escapeHTML x.payload }.join("\n\n")}</pre>}
+    %{<pre>#{Pingback.all(:order => :id.desc).map { |x| CGI.escapeHTML x.body }.join("\n\n")}</pre>}
   end
   
   post "/" do
-    Payload.create(:payload => "#{params.inspect}\n#{env['rack.input'].read}")
+    Pingback.create \
+      :params  => params.to_json,
+      :headers => headers.to_json,
+      :body    => request.body
     nil
   end
   
   get "/clear" do
-    Payload.all.destroy
+    Pingback.all.destroy
   end
 end
