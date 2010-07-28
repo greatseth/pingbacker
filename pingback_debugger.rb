@@ -52,6 +52,7 @@ class PingbackDebugger < Sinatra::Base
     @pingback = Pingback.first(:order => :id.desc)
     
     if @pingback
+      content_type "application/json"
       etag @pingback.md5
       @pingback.to_json
     else
