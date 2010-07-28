@@ -28,13 +28,20 @@ class PingbackDebuggerTest < Test::Unit::TestCase
   test "getting latest pingback" do
     get '/latest.json'
     assert last_response.not_found?
+    
     create_pingback
     assert last_response.ok?
+    
     get '/latest.json'
     assert last_response.ok?
-    assert_nothing_raised { JSON.parse last_response.body }
-    assert_equal '"' + Pingback.first(:order => :id.desc).md5 + '"',
-                 last_response.headers["ETag"]
+    
+    pingback = Pingback.first(:order => :id.desc)
+    json = nil
+    assert_nothing_raised { json = JSON.parse last_response.body }
+    assert_equal pingback.params,  json["params"]
+    assert_equal pingback.headers, json["headers"]
+    assert_equal pingback.body,    json["body"]
+    assert_equal %{"#{pingback.md5}"}, last_response.headers["ETag"]
   end
   
   test "clearing pingbacks" do
