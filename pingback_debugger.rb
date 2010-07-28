@@ -25,15 +25,20 @@ configure do
   # DATABASE_URL is a complete URL for the Postgres database that Heroku
   # provides for you, something like: postgres://user:password@host/db, which
   # is what DM wants. This is also a convenient check wether we're in production
-  # / not.
-  DataMapper.setup(:default,
-    (ENV["DATABASE_URL"] || "sqlite3:///#{File.dirname __FILE__}/#{ENV['RACK_ENV']}.sqlite3"))
+  # or not.
+  db_location = ENV["DATABASE_URL"] || 
+                "sqlite3:///#{File.dirname __FILE__}/#{ENV['RACK_ENV']}.sqlite3"
+  DataMapper.setup :default, db_location
   DataMapper.auto_upgrade!
 end
 
 class PingbackDebugger < Sinatra::Base
   get "/" do
-    %{<pre>#{Pingback.all(:order => :id.desc).map { |x| CGI.escapeHTML x.body }.join("\n\n")}</pre>}
+    output = Pingback.all(:order => :id.desc).map do |x|
+      CGI.escapeHTML x.body
+    end.join("\n\n")
+    
+    %{<pre>#{output}</pre>}
   end
   
   post "/" do
@@ -46,5 +51,6 @@ class PingbackDebugger < Sinatra::Base
   
   get "/clear" do
     Pingback.all.destroy
+    nil
   end
 end
