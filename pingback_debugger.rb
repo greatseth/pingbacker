@@ -1,5 +1,3 @@
-# require File.dirname(__FILE__) + '/vendor/gems/environment'
-
 require "rubygems"
 require "bundler"
 Bundler.setup :default
