@@ -20,7 +20,11 @@ class Pingback
   # before :valid?, :make_md5
   
   def to_json
-    { :headers => headers, :params => params, :body => body }.to_json
+    { 
+      :headers => JSON.parse(headers),
+      :params  => JSON.parse(params),
+      :body    => body
+    }.to_json
   end
   
 # private
