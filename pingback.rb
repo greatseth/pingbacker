@@ -21,14 +21,20 @@ class Pingback
   
   def to_json
     { 
-      :headers => JSON.parse(headers),
-      :params  => JSON.parse(params),
+      :headers => parsed(:headers),
+      :params  => parsed(:params),
       :body    => body
     }.to_json
   end
   
+  def parsed(attribute)
+    JSON.parse(send(attribute))
+  end
+  
 # private
   def make_md5
-    self.md5 ||= Digest::MD5.hexdigest(headers + params + body)
+    self.md5 ||= Digest::MD5.hexdigest(
+      id.to_s + headers + params + body + "$@17"
+    )
   end
 end

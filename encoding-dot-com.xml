@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<result>
+  <mediaid>1754978</mediaid>
+  <source>http://drop.io/download/public/o8zha9kkhzkymkegsj7t/891ac2e5dba1a461b72d78b945af491e9487ea14/Asset/39351984/v3/web_preview</source>
+  <status>Finished</status>
+  <description/>
+  <format>
+    <taskid>6912212</taskid>
+    <output>flv</output>
+    <status>Finished</status>
+    <destination>http://c0013166.cdn1.cloudfiles.rackspacecloud.com/web_preview_6912212.flv</destination>
+  </format>
+  <format>
+    <taskid>6912213</taskid>
+    <output>mp4</output>
+    <status>Finished</status>
+    <destination>http://c0013166.cdn1.cloudfiles.rackspacecloud.com/web_preview_6912213.mp4</destination>
+  </format>
+</result>
