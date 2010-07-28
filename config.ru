@@ -1,2 +1,2 @@
 require 'pingback_debugger'
-run PayloadPrinter
+run PingbackDebugger
