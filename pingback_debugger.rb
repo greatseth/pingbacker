@@ -3,6 +3,7 @@ require "bundler"
 Bundler.setup :default
 
 require "sinatra"
+require "cgi"
 require "pingback"
 
 configure do
