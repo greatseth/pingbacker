@@ -40,8 +40,8 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     pingback = Pingback.first(:order => :id.desc)
     json = nil
     assert_nothing_raised { json = JSON.parse last_response.body }
-    assert_equal pingback.params,  json["params"]
-    assert_equal pingback.headers, json["headers"]
+    assert_equal JSON.parse(pingback.params),  json["params"]
+    assert_equal JSON.parse(pingback.headers), json["headers"]
     assert_equal pingback.body,    json["body"]
     assert_equal %{"#{pingback.md5}"}, last_response.headers["ETag"]
   end
