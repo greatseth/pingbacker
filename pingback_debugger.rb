@@ -3,19 +3,36 @@ require "bundler"
 Bundler.setup :default
 
 require "sinatra"
+require "digest/md5"
 require "json"
 require "cgi"
 require "dm-core"
+require "dm-validations"
 require "dm-migrations"
 require "dm-sqlite-adapter"
 require "dm-postgres-adapter"
 
 class Pingback
   include DataMapper::Resource
+  
   property :id,      Serial
   property :headers, Text
   property :params,  Text
   property :body,    Text
+  property :md5,     Text
+  
+  validates_presence_of :headers, :params, :body, :md5
+  
+  # before :valid?, :make_md5
+  
+  def to_json
+    { :headers => headers, :params => params, :body => body }.to_json
+  end
+  
+# private
+  def make_md5
+    self.md5 ||= Digest::MD5.hexdigest(headers + params + body)
+  end
 end
 
 configure do
@@ -31,20 +48,31 @@ configure do
 end
 
 class PingbackDebugger < Sinatra::Base
-  get "/" do
-    output = Pingback.all(:order => :id.desc).map do |x|
-      CGI.escapeHTML x.body
-    end.join("\n\n")
+  get "/latest.json" do
+    @pingback = Pingback.first(:order => :id.desc)
     
-    %{<pre>#{output}</pre>}
+    if @pingback
+      etag @pingback.md5
+      @pingback.to_json
+    else
+      404
+    end
   end
   
   post "/" do
-    Pingback.create \
+    @pingback = Pingback.new \
       :params  => params.to_json,
       :headers => headers.to_json,
-      :body    => request.body
-    nil
+      :body    => request.body.read
+    
+    # TODO figure out how to use dm-validations and callbacks :\
+    @pingback.make_md5
+    
+    if @pingback.save
+      200
+    else
+      error 500, @pingback.errors.inspect
+    end
   end
   
   get "/clear" do
