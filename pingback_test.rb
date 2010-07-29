@@ -3,6 +3,24 @@ require 'pingback'
 Pingback.setup_db!
 
 class PingbackTest < Test::Unit::TestCase
+  def teardown
+    Pingback.all.destroy
+  end
+  
+  test "parsed accessors" do
+    pingback = Pingback.new
+    assert_nil pingback.parsed(:params)
+    assert_nil pingback.parsed(:headers)
+    
+    stuff = { "foo" => "bar" }
+    
+    pingback.params  = stuff.to_json
+    pingback.headers = stuff.to_json
+    
+    assert_equal stuff, pingback.parsed(:params)
+    assert_equal stuff, pingback.parsed(:headers)
+  end
+  
   test "latest" do
     assert_nil Pingback.latest
     

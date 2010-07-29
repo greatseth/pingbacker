@@ -44,7 +44,9 @@ class Pingback
   end
   
   def parsed(attribute)
-    JSON.parse(send(attribute))
+    if attribute_value = send(attribute)
+      JSON.parse(attribute_value)
+    end
   end
   
 # private
