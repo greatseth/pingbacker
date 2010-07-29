@@ -19,6 +19,22 @@ class Pingback
   
   # before :valid?, :make_md5
   
+  def self.setup_db!
+    # Heroku has some valuable information in the environment variables.
+    # DATABASE_URL is a complete URL for the Postgres database that Heroku
+    # provides for you, something like: postgres://user:password@host/db, which
+    # is what DM wants. This is also a convenient check wether we're in production
+    # or not.
+    db_location = ENV["DATABASE_URL"] || 
+                  "sqlite3:///#{File.dirname __FILE__}/#{ENV['RACK_ENV']}.sqlite3"
+    DataMapper.setup :default, db_location
+    DataMapper.auto_upgrade!
+  end
+  
+  def self.latest
+    first :order => :id.desc
+  end
+  
   def to_json
     { 
       :headers => parsed(:headers),

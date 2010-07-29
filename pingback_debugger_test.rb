@@ -1,18 +1,11 @@
-ENV['RACK_ENV'] = 'test'
+require 'test_helper'
+require 'rack/test'
 
 require 'pingback_debugger'
-require 'test/unit'
-
-Bundler.setup :test
-require 'rack/test'
 
 class PingbackDebuggerTest < Test::Unit::TestCase
   include Rack::Test::Methods
   def app; PingbackDebugger; end
-  
-  def self.test(description, &block);
-    define_method("test #{description}", &block)
-  end
   
   def teardown
     Pingback.all.destroy
@@ -37,7 +30,7 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     get '/latest.json'
     assert last_response.ok?
     
-    pingback = Pingback.first(:order => :id.desc)
+    pingback = Pingback.latest
     json = nil
     assert_nothing_raised { json = JSON.parse last_response.body }
     assert_equal JSON.parse(pingback.params),  json["params"]
@@ -53,7 +46,7 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     get '/latest.json'
     assert last_response.ok?
     
-    pingback2 = Pingback.first(:order => :id.desc)
+    pingback2 = Pingback.latest
     json = nil
     assert_nothing_raised { json = JSON.parse last_response.body }
     assert_equal JSON.parse(pingback2.params),  json["params"]
