@@ -25,7 +25,9 @@ class PingbackDebugger < Sinatra::Base
     if @pingback
       content_type "application/json"
       etag @pingback.md5
-      @pingback.to_json
+      json = @pingback.to_json
+      @pingback.destroy
+      json
     else
       404
     end

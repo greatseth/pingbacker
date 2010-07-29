@@ -27,36 +27,24 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     ping!
     assert last_response.ok?
     
+    pingback = Pingback.latest
+    assert_not_nil pingback
+    
     get '/latest.json'
     assert last_response.ok?
     
-    pingback = Pingback.latest
     json = nil
     assert_nothing_raised { json = JSON.parse last_response.body }
-    assert_equal JSON.parse(pingback.params),  json["params"]
-    assert_equal JSON.parse(pingback.headers), json["headers"]
+    assert_equal pingback.parsed(:params),  json["params"]
+    assert_equal pingback.parsed(:headers), json["headers"]
     assert_equal pingback.body, json["body"]
     assert_equal %{"#{pingback.md5}"}, last_response.headers["ETag"]
     
-    first_response_etag = last_response.headers["ETag"]
-    
-    ping! # identical request as the first one
-    assert last_response.ok?
-    
     get '/latest.json'
+    assert last_response.not_found?
+    
+    ping!
     assert last_response.ok?
-    
-    pingback2 = Pingback.latest
-    json = nil
-    assert_nothing_raised { json = JSON.parse last_response.body }
-    assert_equal JSON.parse(pingback2.params),  json["params"]
-    assert_equal JSON.parse(pingback2.headers), json["headers"]
-    assert_equal pingback2.body, json["body"]
-    assert_equal %{"#{pingback2.md5}"}, last_response.headers["ETag"]
-    
-    second_response_etag = last_response.headers["ETag"]
-    
-    assert first_response_etag != second_response_etag
   end
   
   test "clearing pingbacks" do
