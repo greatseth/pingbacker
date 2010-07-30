@@ -1,0 +1,13 @@
+CHANGELOG
+Gemfile
+Gemfile.lock
+Rakefile
+config.ru
+encoding-dot-com.xml
+pingback.rb
+pingback_debugger.rb
+pingback_replayer.rb
+test/pingback_debugger_test.rb
+test/pingback_test.rb
+test/test_helper.rb
+Manifest
