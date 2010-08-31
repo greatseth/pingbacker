@@ -54,17 +54,24 @@ class PingbackFetcher
     puts response.code
     puts "ETag: #{response["Etag"]}"
     
-    if pingback_stored?
-      if new_pingback?(response)
-        save_pingback(response)
-      else
-        @received_new_pingback = false
-      end
-    else
-      save_pingback(response)
-    end
+    # if pingback_stored?
+    #   if new_pingback?(response)
+    #     save_pingback(response)
+    #   else
+    #     @received_new_pingback = false
+    #   end
+    # else
+    #   save_pingback(response)
+    # end
     
     puts latest_pingback.inspect
+    
+    if response.code == 200
+      save_pingback(response)
+      true
+    else
+      false
+    end
   end
   
   def received_new_pingback?
@@ -89,16 +96,17 @@ end
 
 if __FILE__ == $0
   fetcher = PingbackFetcher.new
-  player  = PingbackReplayer.new "http://pingback-debugger.heroku.com"
+  player  = PingbackReplayer.new "http://localhost:"
   
   loop do
     puts "fetching latest pingback"
-    fetcher.fetch
-    if fetcher.received_new_pingback?
+    if fetcher.fetch
+    # if fetcher.received_new_pingback?
       puts "fetched pingback: #{fetcher.latest_pingback.inspect}",
            "replaying.."
       response = player.replay! fetcher.latest_pingback 
       puts "result of replay: #{response.inspect}"
+    # end
     end
     sleep 20
   end

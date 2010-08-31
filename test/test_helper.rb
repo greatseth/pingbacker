@@ -4,6 +4,7 @@ require 'bundler'
 Bundler.setup :test
 
 require 'test/unit'
+require 'redgreen'
 
 class Test::Unit::TestCase
   def self.test(description, &block);

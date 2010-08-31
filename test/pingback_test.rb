@@ -9,8 +9,8 @@ class PingbackTest < Test::Unit::TestCase
   
   test "parsed accessors" do
     pingback = Pingback.new
-    assert_nil pingback.parsed(:params)
-    assert_nil pingback.parsed(:headers)
+    assert_equal Hash.new, pingback.parsed(:params)
+    assert_equal Hash.new, pingback.parsed(:headers)
     
     stuff = { "foo" => "bar" }
     
@@ -22,12 +22,16 @@ class PingbackTest < Test::Unit::TestCase
   end
   
   test "latest" do
-    assert_nil Pingback.latest
+    assert_nil Pingback.next
     
     pingback1 = Pingback.create!
-    assert_equal pingback1.id, Pingback.latest.id
+    assert_equal pingback1.id, Pingback.next.id
     
     pingback2 = Pingback.create!
-    assert_equal pingback2.id, Pingback.latest.id
+    assert_equal pingback1.id, Pingback.next.id
+    
+    pingback1.destroy
+    
+    assert_equal pingback2.id, Pingback.next.id
   end
 end

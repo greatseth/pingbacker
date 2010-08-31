@@ -19,8 +19,8 @@ class PingbackDebugger < Sinatra::Base
     %{<pre>#{output}</pre>}
   end
   
-  get "/latest.json" do
-    @pingback = Pingback.latest
+  get "/next.json" do
+    @pingback = Pingback.next
     
     if @pingback
       content_type "application/json"
@@ -36,7 +36,7 @@ class PingbackDebugger < Sinatra::Base
   post "/" do
     @pingback = Pingback.new \
       :params  => params.to_json,
-      :headers => headers.to_json,
+      :headers => request.env.to_json,
       :body    => request.body.read
     
     # TODO figure out how to use dm-validations and callbacks :\

@@ -10,10 +10,10 @@ class Pingback
   include DataMapper::Resource
   
   property :id,      Serial
-  property :headers, Text
-  property :params,  Text
-  property :body,    Text
-  property :md5,     Text
+  property :headers, Text, :lazy => false
+  property :params,  Text, :lazy => false
+  property :body,    Text, :lazy => false
+  property :md5,     Text, :lazy => false
   
   validates_presence_of :headers, :params, :body, :md5
   
@@ -31,8 +31,8 @@ class Pingback
     DataMapper.auto_upgrade!
   end
   
-  def self.latest
-    first :order => :id.desc
+  def self.next
+    first :order => :id.asc
   end
   
   def to_json
@@ -44,9 +44,7 @@ class Pingback
   end
   
   def parsed(attribute)
-    if attribute_value = send(attribute)
-      JSON.parse(attribute_value)
-    end
+    (attribute_value = send(attribute)) ? JSON.parse(attribute_value) : {}
   end
   
 # private
