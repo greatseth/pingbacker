@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
+require 'rubygems'
+require 'bundler'
+Bundler.setup
 
 require 'net/http'
-require 'rubygems'
 require 'json'
 require 'pingback'
 
@@ -48,7 +50,7 @@ class PingbackFetcher
     print "fetching latest pingback..."
     
     url      = URI.parse "http://pingback-debugger.heroku.com"
-    request  = Net::HTTP::Get.new("/latest.json")
+    request  = Net::HTTP::Get.new("/next.json")
     
     response = Net::HTTP.start(url.host, url.port) { |h| h.request(request) }
     puts response.code
@@ -74,18 +76,18 @@ class PingbackFetcher
     end
   end
   
-  def received_new_pingback?
-    @received_new_pingback
-  end
+  # def received_new_pingback?
+  #   @received_new_pingback
+  # end
   
 private
-  def pingback_stored?
-    not latest_pingback.nil? and not latest_pingback_md5.nil?
-  end
-  
-  def new_pingback?(response)
-    latest_pingback_md5 != response["Etag"][1..-2]
-  end
+  # def pingback_stored?
+  #   not latest_pingback.nil? and not latest_pingback_md5.nil?
+  # end
+  # 
+  # def new_pingback?(response)
+  #   latest_pingback_md5 != response["Etag"][1..-2]
+  # end
   
   def save_pingback(response)
     @latest_pingback_md5   = response["Etag"][1..-2]
@@ -96,17 +98,15 @@ end
 
 if __FILE__ == $0
   fetcher = PingbackFetcher.new
-  player  = PingbackReplayer.new "http://localhost:"
+  player  = PingbackReplayer.new "http://localhost:9292"
   
   loop do
     puts "fetching latest pingback"
     if fetcher.fetch
-    # if fetcher.received_new_pingback?
       puts "fetched pingback: #{fetcher.latest_pingback.inspect}",
            "replaying.."
       response = player.replay! fetcher.latest_pingback 
       puts "result of replay: #{response.inspect}"
-    # end
     end
     sleep 20
   end
