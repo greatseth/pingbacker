@@ -1,5 +1,9 @@
 --- 
 dependencies: 
+  bson_ext: 
+    group: 
+    - :test
+    version: ">= 0"
   dm-validations: 
     group: 
     - :default
@@ -19,6 +23,10 @@ dependencies:
   dm-core: 
     group: 
     - :default
+    version: ">= 0"
+  bson: 
+    group: 
+    - :test
     version: ">= 0"
   json: 
     group: 
@@ -55,6 +63,10 @@ specs:
     version: 3.0.0
 - addressable: 
     version: 2.2.0
+- bson: 
+    version: 1.0.7
+- bson_ext: 
+    version: 1.0.7
 - data_objects: 
     version: 0.10.2
 - extlib: 
@@ -93,7 +105,7 @@ specs:
     version: 1.2.2
 - sinatra: 
     version: "1.0"
-hash: 4254b4f369564694a773686093d43f510dfb861b
+hash: c3013cd51dea23e75b8278de650855e974e6cdf7
 sources: 
 - Rubygems: 
     uri: http://gemcutter.org

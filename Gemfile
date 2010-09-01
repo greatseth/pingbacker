@@ -20,4 +20,6 @@ end
 group :test do
   gem "rack-test"
   gem "redgreen"
+  gem "bson"
+  gem "bson_ext"
 end

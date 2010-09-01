@@ -1,6 +1,7 @@
 require 'test_helper'
 require 'rack/test'
 
+require 'bson'
 require 'pingback_debugger'
 
 class PingbackDebuggerTest < Test::Unit::TestCase
@@ -21,7 +22,7 @@ class PingbackDebuggerTest < Test::Unit::TestCase
   end
   
   test "getting next pingback" do
-    get '/next.json'
+    next!
     assert last_response.not_found?
     
     ping!
@@ -30,17 +31,18 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     pingback = Pingback.next
     assert_not_nil pingback
     
-    get '/next.json'
+    next!
     assert last_response.ok?
     
     json = nil
     assert_nothing_raised { json = JSON.parse last_response.body }
     assert_equal pingback.parsed(:params),  json["params"]
+    assert pingback.parsed(:params)["job_id"]
     assert_equal pingback.parsed(:headers)["Content-Type"], json["headers"]["Content-Type"]
     assert_equal pingback.body, json["body"]
     assert_equal %{"#{pingback.md5}"}, last_response.headers["ETag"]
     
-    get '/next.json'
+    next!
     assert last_response.not_found?
     
     ping!
@@ -52,13 +54,13 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     ping!
     assert last_response.ok?
     assert_equal 1, Pingback.count
-    get '/clear'
+    delete '/pingbacks'
     assert last_response.ok?
     assert_equal 0, Pingback.count
   end
   
   test "listing pingbacks" do
-    get '/'
+    get '/pingbacks'
     assert last_response.ok?
   end
   
@@ -76,7 +78,15 @@ class PingbackDebuggerTest < Test::Unit::TestCase
       options[:body] || get_default_pingback_body
     )
     
-    post "/", params, rack_env
+    pingbacks_before = Pingback.count
+    response = post "/pingbacks/#{BSON::ObjectId.new}", params, rack_env
+    pingbacks_after  = Pingback.count
+    assert pingbacks_after == (pingbacks_before + 1), "failed to add pingback"
+    response
+  end
+  
+  def next!
+    get '/pingbacks/next'
   end
   
   def get_default_pingback_body

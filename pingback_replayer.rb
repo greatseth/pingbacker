@@ -45,7 +45,7 @@ class PingbackFetcher
   
   def fetch
     url      = URI.parse "http://pingback-debugger.heroku.com"
-    request  = Net::HTTP::Get.new("/next.json")
+    request  = Net::HTTP::Get.new("/pingbacks/next")
     
     response = Net::HTTP.start(url.host, url.port) { |h| h.request(request) }
     puts response.code
