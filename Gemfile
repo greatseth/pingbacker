@@ -8,6 +8,10 @@ gem "dm-validations"
 gem "dm-sqlite-adapter"
 gem "dm-postgres-adapter"
 
+group :replayer do
+  gem "activesupport"
+end
+
 group :development do
   gem "rake"
   gem "echoe"

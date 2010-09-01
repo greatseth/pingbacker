@@ -12,6 +12,10 @@ end
 
 class PingbackDebugger < Sinatra::Base
   get "/" do
+    redirect "/pingbacks"
+  end
+  
+  get "/pingbacks" do
     output = Pingback.all(:order => :id.desc).map do |x|
       CGI.escapeHTML x.body
     end.join("\n\n")
@@ -19,7 +23,7 @@ class PingbackDebugger < Sinatra::Base
     %{<pre>#{output}</pre>}
   end
   
-  get "/next.json" do
+  get "/pingbacks/next" do
     @pingback = Pingback.next
     
     if @pingback
@@ -32,8 +36,8 @@ class PingbackDebugger < Sinatra::Base
       404
     end
   end
-  
-  post "/" do
+    
+  post "/pingbacks/:job_id" do
     @pingback = Pingback.new \
       :params  => params.to_json,
       :headers => request.env.to_json,
@@ -49,7 +53,7 @@ class PingbackDebugger < Sinatra::Base
     end
   end
   
-  get "/clear" do
+  delete "/pingbacks" do
     Pingback.all.destroy
     200
   end

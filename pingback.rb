@@ -10,12 +10,13 @@ class Pingback
   include DataMapper::Resource
   
   property :id,      Serial
+  property :job_id,  Text, :lazy => false
   property :headers, Text, :lazy => false
   property :params,  Text, :lazy => false
   property :body,    Text, :lazy => false
   property :md5,     Text, :lazy => false
   
-  validates_presence_of :headers, :params, :body, :md5
+  validates_presence_of :job_id, :headers, :params, :body, :md5
   
   # before :valid?, :make_md5
   
@@ -39,7 +40,8 @@ class Pingback
     { 
       :headers => parsed(:headers),
       :params  => parsed(:params),
-      :body    => body
+      :body    => body,
+      :job_id  => job_id
     }.to_json
   end
   
@@ -50,7 +52,7 @@ class Pingback
 # private
   def make_md5
     self.md5 ||= Digest::MD5.hexdigest(
-      id.to_s + headers + params + body + "$@17"
+      id.to_s + job_id + headers + params + body
     )
   end
 end

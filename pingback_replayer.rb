@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 require 'bundler'
-Bundler.setup
+Bundler.setup :default, :replayer
 
+require 'active_support'
 require 'net/http'
 require 'json'
 require 'pingback'
@@ -29,14 +30,10 @@ class PingbackReplayer
   end
   
   def replay!(pingback)
-    path    = target.path == "" ? "/" : target.path
-    request = Net::HTTP::Post.new(path)
-    
+    request = Net::HTTP::Post.new("/jobs/#{pingback['params']['job_id']}")
     pingback["headers"].each { |k,v| request[k] = v }
-    
     request.body = pingback["body"]
-    
-    request.set_form_data pingback["params"]
+    request.set_form_data pingback["params"].except("job_id")
     
     Net::HTTP.start(target.host, target.port) { |h| h.request(request) }
   end
@@ -47,8 +44,6 @@ class PingbackFetcher
   attr_reader :latest_pingback_md5
   
   def fetch
-    print "fetching latest pingback..."
-    
     url      = URI.parse "http://pingback-debugger.heroku.com"
     request  = Net::HTTP::Get.new("/next.json")
     
@@ -66,9 +61,7 @@ class PingbackFetcher
     #   save_pingback(response)
     # end
     
-    puts latest_pingback.inspect
-    
-    if response.code == 200
+    if response.code.to_i == 200
       save_pingback(response)
       true
     else
@@ -98,7 +91,7 @@ end
 
 if __FILE__ == $0
   fetcher = PingbackFetcher.new
-  player  = PingbackReplayer.new "http://localhost:9292"
+  player  = PingbackReplayer.new "http://localhost:3020"
   
   loop do
     puts "fetching latest pingback"
