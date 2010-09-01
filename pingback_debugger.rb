@@ -38,6 +38,7 @@ class PingbackDebugger < Sinatra::Base
   end
     
   post "/pingbacks/:job_id" do
+    puts params.inspect
     @pingback = Pingback.new \
       :params  => params.to_json,
       :headers => request.env.to_json,
