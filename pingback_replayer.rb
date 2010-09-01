@@ -30,7 +30,7 @@ class PingbackReplayer
   end
   
   def replay!(pingback)
-    request = Net::HTTP::Post.new("/jobs/#{pingback['params']['job_id']}")
+    request = Net::HTTP::Post.new("/jobs/#{pingback['params']['job_id']}/pingback")
     pingback["headers"].each { |k,v| request[k] = v }
     request.body = pingback["body"]
     request.set_form_data pingback["params"].except("job_id")
