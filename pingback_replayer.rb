@@ -4,64 +4,45 @@ require 'bundler'
 Bundler.setup :default, :replayer
 
 require 'active_support'
-require 'net/http'
+require 'httparty'
 require 'json'
 require 'pingback'
 
 class PingbackReplayer
-  module HTTPHelper
-    def make_request(net_http_method_class_name, path, options = {})
-      url = URI.parse "http://pingback-debugger.heroku.com"
-      request  = Net::HTTP.const_get(net_http_method_class_name).new(path)
-      response = Net::HTTP.start(url.host, url.port) { |h| h.request(request) }
-    end
-  end
-  include HTTPHelper
-  
   attr_reader   :pingback
   attr_accessor :target
+  
+  include HTTParty
   
   def initialize(target)
     self.target = target
   end
   
-  def target=(url)
-    @target = URI.parse url
+  def target=(uri)
+    @target = uri
+    self.class.base_uri target
   end
   
   def replay!(pingback)
-    request = Net::HTTP::Post.new("/jobs/#{pingback['params']['job_id']}/pingback")
-    pingback["headers"].each { |k,v| request[k] = v }
-    request.body = pingback["body"]
-    request.set_form_data pingback["params"].except("job_id")
-    
-    Net::HTTP.start(target.host, target.port) { |h| h.request(request) }
+    pingback["headers"].each { |k,v| pingback["headers"][k] = v.to_s }
+    self.class.post "/jobs/#{pingback['params']['job_id']}/pingback",
+      :headers => pingback["headers"], :body => pingback["body"]
   end
 end
 
 class PingbackFetcher
+  include HTTParty
+  base_uri "http://pingback-debugger.heroku.com"
+  
   attr_reader :latest_pingback
   attr_reader :latest_pingback_md5
   
   def fetch
-    url      = URI.parse "http://pingback-debugger.heroku.com"
-    request  = Net::HTTP::Get.new("/pingbacks/next")
+    print "fetching latest pingback... "
+    response = self.class.get "/pingbacks/next"
+    puts "#{response.code} #{response.headers["Etag"]}"
     
-    response = Net::HTTP.start(url.host, url.port) { |h| h.request(request) }
-    puts response.code
-    puts "ETag: #{response["Etag"]}"
-    
-    # if pingback_stored?
-    #   if new_pingback?(response)
-    #     save_pingback(response)
-    #   else
-    #     @received_new_pingback = false
-    #   end
-    # else
-    #   save_pingback(response)
-    # end
-    
-    if response.code.to_i == 200
+    if response.code == 200
       save_pingback(response)
       true
     else
@@ -69,21 +50,9 @@ class PingbackFetcher
     end
   end
   
-  # def received_new_pingback?
-  #   @received_new_pingback
-  # end
-  
 private
-  # def pingback_stored?
-  #   not latest_pingback.nil? and not latest_pingback_md5.nil?
-  # end
-  # 
-  # def new_pingback?(response)
-  #   latest_pingback_md5 != response["Etag"][1..-2]
-  # end
-  
   def save_pingback(response)
-    @latest_pingback_md5   = response["Etag"][1..-2]
+    @latest_pingback_md5   = response.headers["Etag"][1..-2]
     @latest_pingback       = JSON.parse(response.body)
     @received_new_pingback = true
   end
@@ -94,13 +63,12 @@ if __FILE__ == $0
   player  = PingbackReplayer.new "http://localhost:3020"
   
   loop do
-    puts "fetching latest pingback"
     if fetcher.fetch
-      puts "fetched pingback: #{fetcher.latest_pingback.inspect}",
-           "replaying.."
+      puts "fetched pingback for job #{fetcher.latest_pingback["params"]['job_id']}",
+           "replaying..."
       response = player.replay! fetcher.latest_pingback 
       puts "result of replay: #{response.inspect}"
     end
-    sleep 20
+    sleep 5
   end
 end

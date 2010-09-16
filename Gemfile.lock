@@ -4,6 +4,10 @@ dependencies:
     group: 
     - :test
     version: ">= 0"
+  httparty: 
+    group: 
+    - :replayer
+    version: ">= 0"
   dm-validations: 
     group: 
     - :default
@@ -28,14 +32,14 @@ dependencies:
     group: 
     - :test
     version: ">= 0"
-  json: 
-    group: 
-    - :default
-    version: = 1.1.3
   sinatra: 
     group: 
     - :default
     version: ">= 0"
+  json: 
+    group: 
+    - :default
+    version: = 1.1.3
   redgreen: 
     group: 
     - :test
@@ -48,13 +52,13 @@ dependencies:
     group: 
     - :test
     version: ">= 0"
-  activesupport: 
-    group: 
-    - :replayer
-    version: ">= 0"
   dm-migrations: 
     group: 
     - :default
+    version: ">= 0"
+  activesupport: 
+    group: 
+    - :replayer
     version: ">= 0"
 specs: 
 - rake: 
@@ -67,6 +71,8 @@ specs:
     version: 1.0.7
 - bson_ext: 
     version: 1.0.7
+- crack: 
+    version: 0.1.8
 - data_objects: 
     version: 0.10.2
 - extlib: 
@@ -95,6 +101,8 @@ specs:
     version: 2.0.4
 - echoe: 
     version: 4.3.1
+- httparty: 
+    version: 0.6.1
 - json: 
     version: 1.1.3
 - rack: 
@@ -105,7 +113,7 @@ specs:
     version: 1.2.2
 - sinatra: 
     version: "1.0"
-hash: c3013cd51dea23e75b8278de650855e974e6cdf7
+hash: 81327ac9a5e2febe34839d1f48f87083c138805f
 sources: 
 - Rubygems: 
     uri: http://gemcutter.org

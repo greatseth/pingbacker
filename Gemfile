@@ -10,6 +10,7 @@ gem "dm-postgres-adapter"
 
 group :replayer do
   gem "activesupport"
+  gem "httparty"
 end
 
 group :development do
