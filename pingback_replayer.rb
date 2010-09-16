@@ -25,7 +25,7 @@ class PingbackReplayer
   
   def replay!(pingback)
     pingback["headers"].each { |k,v| pingback["headers"][k] = v.to_s }
-    self.class.post "/jobs/#{pingback['params']['job_id']}/pingback",
+    self.class.post pingback["path"],
       :headers => pingback["headers"], :body => pingback["body"]
   end
 end
@@ -64,8 +64,7 @@ if __FILE__ == $0
   
   loop do
     if fetcher.fetch
-      puts "fetched pingback for job #{fetcher.latest_pingback["params"]['job_id']}",
-           "replaying..."
+      puts "fetched pingback #{fetcher.latest_pingback.inspect}", "replaying..."
       response = player.replay! fetcher.latest_pingback 
       puts "result of replay: #{response.inspect}"
     end

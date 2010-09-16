@@ -21,7 +21,7 @@ class PingbackTest < Test::Unit::TestCase
     assert_equal stuff, pingback.parsed(:headers)
   end
   
-  test "latest" do
+  test "next" do
     assert_nil Pingback.next
     
     pingback1 = Pingback.create!

@@ -37,11 +37,12 @@ class PingbackDebugger < Sinatra::Base
     end
   end
     
-  post "/jobs/:job_id/pingback" do
+  post "*" do
     @pingback = Pingback.new \
       :params  => params.to_json,
       :headers => request.env.to_json,
-      :body    => request.body.read
+      :body    => request.body.read,
+      :path    => request.path
     
     # TODO figure out how to use dm-validations and callbacks :\
     @pingback.make_md5

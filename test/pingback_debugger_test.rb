@@ -30,6 +30,12 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     
     pingback = Pingback.next
     assert_not_nil pingback
+    assert_not_nil pingback.parsed(:params)
+    default_request_headers.each do |k,v|
+      assert_equal v, pingback.parsed(:headers)[k]
+    end
+    assert_equal default_pingback_body, pingback.body
+    assert_equal last_pingback_path, pingback.path
     
     next!
     assert last_response.ok?
@@ -37,9 +43,10 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     json = nil
     assert_nothing_raised { json = JSON.parse last_response.body }
     assert_equal pingback.parsed(:params),  json["params"]
-    assert pingback.parsed(:params)["job_id"]
+    # assert pingback.parsed(:params)["job_id"]
     assert_equal pingback.parsed(:headers)["Content-Type"], json["headers"]["Content-Type"]
     assert_equal pingback.body, json["body"]
+    assert_equal pingback.path, json["path"]
     assert_equal %{"#{pingback.md5}"}, last_response.headers["ETag"]
     
     next!
@@ -68,18 +75,19 @@ class PingbackDebuggerTest < Test::Unit::TestCase
   
   def ping!(options = {})
     params   = options[:params]  || {}
-    rack_env = get_default_request_headers.merge(options[:headers] || {})
+    rack_env = default_request_headers.merge(options[:headers] || {})
     
     # without this, Rack parses the body into params.. 
     # seems like a bug, but haven't probed Rack enought to know for sure
     rack_env["CONTENT_TYPE"] = rack_env["Content-Type"]
     
     rack_env["rack.input"] = StringIO.new(
-      options[:body] || get_default_pingback_body
+      options[:body] || default_pingback_body
     )
     
+    @last_pingback_path = default_pingback_path
     pingbacks_before = Pingback.count
-    response = post "/jobs/#{BSON::ObjectId.new}/pingback", params, rack_env
+    response = post last_pingback_path, params, rack_env
     pingbacks_after  = Pingback.count
     assert pingbacks_after == (pingbacks_before + 1), "failed to add pingback"
     response
@@ -89,11 +97,17 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     get '/pingbacks/next'
   end
   
-  def get_default_pingback_body
+  def default_pingback_body
     File.read("encoding-dot-com.xml")
   end
   
-  def get_default_request_headers
+  def default_request_headers
     { "Content-Type" => "application/xml" }
   end
+  
+  def default_pingback_path
+    "/jobs/#{BSON::ObjectId.new}/pingback"
+  end
+  
+  attr_reader :last_pingback_path
 end
