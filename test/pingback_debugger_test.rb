@@ -79,7 +79,7 @@ class PingbackDebuggerTest < Test::Unit::TestCase
     )
     
     pingbacks_before = Pingback.count
-    response = post "/pingbacks/#{BSON::ObjectId.new}", params, rack_env
+    response = post "/jobs/#{BSON::ObjectId.new}/pingback", params, rack_env
     pingbacks_after  = Pingback.count
     assert pingbacks_after == (pingbacks_before + 1), "failed to add pingback"
     response
