@@ -10,7 +10,7 @@ configure do
   Pingback.setup_db!
 end
 
-class PingbackDebugger < Sinatra::Base
+class Pingbacker < Sinatra::Base
   get "/" do
     redirect "/pingbacks"
   end

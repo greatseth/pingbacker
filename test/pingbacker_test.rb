@@ -2,11 +2,11 @@ require 'test_helper'
 require 'rack/test'
 
 require 'bson'
-require 'pingback_debugger'
+require 'pingbacker'
 
-class PingbackDebuggerTest < Test::Unit::TestCase
+class PingbackerTest < Test::Unit::TestCase
   include Rack::Test::Methods
-  def app; PingbackDebugger; end
+  def app; Pingbacker; end
   
   def teardown
     Pingback.all.destroy

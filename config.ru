@@ -1,2 +1,2 @@
-require 'pingback_debugger'
-run PingbackDebugger
+require 'pingbacker'
+run Pingbacker

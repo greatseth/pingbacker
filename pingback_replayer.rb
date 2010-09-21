@@ -1,4 +1,13 @@
 #!/usr/bin/env ruby
+
+#############################################################################
+#                                                                           #
+# If you want to use this file, see the "if __FILE__ == $0" section         #
+# at the end of the file for example usage. In the future this file may be  #
+# made able to be run in a customizable fashion. Patches welcome! :P        #
+#                                                                           #
+#############################################################################
+
 require 'rubygems'
 require 'bundler'
 Bundler.setup :default, :replayer
@@ -32,7 +41,7 @@ end
 
 class PingbackFetcher
   include HTTParty
-  base_uri "http://pingback-debugger.heroku.com"
+  base_uri "http://pingbacker.heroku.com"
   
   attr_reader :latest_pingback
   attr_reader :latest_pingback_md5
@@ -44,6 +53,11 @@ class PingbackFetcher
     
     if response.code == 200
       save_pingback(response)
+      begin
+        system "growlnotify -m 'Pingback received: #{response.inspect.gsub "'", "\\'"}'"
+      rescue StandardError => e
+        puts e
+      end
       true
     else
       false
