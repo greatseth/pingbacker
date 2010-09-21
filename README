@@ -1,0 +1,37 @@
+# Pingbacker
+
+This package contains two useful tools for developers working with web services 
+that provide HTTP notifications when certain events occur. For 
+example, a video encoding service that notifies you when the transcoding 
+process is complete and the output files delivered.
+
+When working with such services in a 'local' or 'development' mode, generally 
+you are working on a laptop or some commuter not setup with a public HTTP 
+interface. Such an interface could be configured, but it can require complex 
+network configuration on your LAN as well as your computer.
+
+Enter Pingbacker. Pingbacker is primarily two components:
+
+* a Sinatra application which serves to receive notifications from web services 
+  and save their attributes so that clients can fetch them and replay them locally
+* a PingbackReplayer client which is meant to run in a loop, polling the 
+  Pingbacker service for new pingbacks to replay locally
+  
+The Sinatra application should be in a state one could easily deploy to Heroku 
+or similar.
+
+The PingbackReplayer usage is shown in pingback_replayer.rb.
+
+# Ackknowledgements
+
+The work on this app originally started at HD Cloud, a video conversion provider. 
+That work was resurrected and continued(including creation of the 
+PingbackReplayer and adding the necessary interfaces to the Pingbacker app 
+for that to work) to support development of the Drop.io Rich Media Backbone 
+which integrates with several third party service providers when providing 
+conversion services.
+
+# Contributors
+
+* Seth Thomas Rasmussen [sethrasmussen@gmail.com]
+* Matt Vermaak
