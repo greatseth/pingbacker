@@ -10,6 +10,9 @@ class PingbackerTest < Test::Unit::TestCase
   include Rack::Test::Methods
   def app; Pingbacker; end
   
+  attr_reader :last_pingback_path
+  attr_reader :last_pingback_actual_path
+  
   def teardown
     Pingback.all.destroy
   end
@@ -41,7 +44,7 @@ class PingbackerTest < Test::Unit::TestCase
       assert_equal v, pingback.parsed(:headers)[k]
     end
     assert_equal default_pingback_body, pingback.body
-    assert_equal last_pingback_path, pingback.path
+    assert_equal last_pingback_actual_path, pingback.path
     
     next! 'other'
     assert last_response.not_found?
@@ -72,14 +75,14 @@ class PingbackerTest < Test::Unit::TestCase
     assert last_response.ok?
     assert_equal 1, Pingback.count
     assert_equal 1, Pingback.in_silo(DEFAULT_SILO).count
-    delete "/pingbacks/#{CGI.escape DEFAULT_SILO}"
+    delete silo_path(DEFAULT_SILO, "/pingbacks")
     assert last_response.ok?
     assert_equal 0, Pingback.count
     assert_equal 0, Pingback.in_silo(DEFAULT_SILO).count
   end
   
   test "listing pingbacks" do
-    get "/pingbacks/#{CGI.escape DEFAULT_SILO}"
+    get silo_path(DEFAULT_SILO, "/pingbacks")
     assert last_response.ok?
   end
   
@@ -99,7 +102,8 @@ class PingbackerTest < Test::Unit::TestCase
       options[:body] || default_pingback_body
     )
     
-    @last_pingback_path = default_pingback_path
+    @last_pingback_path = options[:path] || default_pingback_path
+    @last_pingback_actual_path = last_pingback_path[/^#{silo_path_base}(.+)$/, 1]
     pingbacks_before = Pingback.count
     response = post last_pingback_path, params, rack_env
     pingbacks_after  = Pingback.count
@@ -108,7 +112,7 @@ class PingbackerTest < Test::Unit::TestCase
   end
   
   def next!(silo = DEFAULT_SILO)
-    get "/pingbacks/#{CGI.escape silo}/next"
+    get silo_path(silo, "/pingbacks/next")
   end
   
   def default_pingback_body
@@ -116,13 +120,22 @@ class PingbackerTest < Test::Unit::TestCase
   end
   
   def default_request_headers
-    { "Content-Type" => "application/xml",
-      Pingbacker::SILO_HEADER_KEY => DEFAULT_SILO }
+    { "Content-Type" => "application/xml" }
   end
   
-  def default_pingback_path
+  def default_pingback_path(silo = DEFAULT_SILO)
+    silo_path(silo, default_pingback_actual_path)
+  end
+  
+  def default_pingback_actual_path
     "/jobs/#{BSON::ObjectId.new}/pingback"
   end
   
-  attr_reader :last_pingback_path
+  def silo_path(silo, path = "/")
+    "#{silo_path_base silo}#{path}"
+  end
+  
+  def silo_path_base(silo = DEFAULT_SILO)
+    "/silos/#{CGI.escape silo}"
+  end
 end
