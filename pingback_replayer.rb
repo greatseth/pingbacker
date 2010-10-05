@@ -16,6 +16,7 @@ require 'active_support'
 require 'httparty'
 require 'json'
 require 'pingback'
+require 'cgi'
 
 class PingbackReplayer
   attr_reader   :pingback
