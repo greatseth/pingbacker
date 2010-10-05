@@ -44,11 +44,20 @@ class PingbackFetcher
   base_uri "http://pingbacker.heroku.com"
   
   attr_reader :latest_pingback
-  attr_reader :latest_pingback_md5
+  attr_reader :silo
+  
+  def initialize(silo)
+    silo = silo.to_s
+    raise ArgumentError, "invalid silo: #{silo.inspect}" if silo.empty?
+    @silo = silo
+  end
   
   def fetch
     print "fetching latest pingback... "
-    response = self.class.get "/pingbacks/next"
+    
+    # TODO extract URL generation from tests for reuse
+    response = self.class.get "/silos/#{CGI.escape silo}/pingbacks/next"
+    
     puts "#{response.code} #{response.headers["Etag"]}"
     
     if response.code == 200
@@ -66,15 +75,13 @@ class PingbackFetcher
   
 private
   def save_pingback(response)
-    @latest_pingback_md5   = response.headers["Etag"][1..-2]
-    @latest_pingback       = JSON.parse(response.body)
-    @received_new_pingback = true
+    @latest_pingback = JSON.parse(response.body)
   end
 end
 
 if __FILE__ == $0
-  fetcher = PingbackFetcher.new
-  player  = PingbackReplayer.new "http://localhost:3020"
+  fetcher = PingbackFetcher.new  ENV['PINGBACKER_SILO']
+  player  = PingbackReplayer.new ENV['PINGBACK_REPLAYER_HOST']
   
   loop do
     if fetcher.fetch
