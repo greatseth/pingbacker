@@ -15,6 +15,7 @@ class Pingback
   property :body,    Text, :lazy => false
   property :path,    Text, :lazy => false
   property :md5,     Text, :lazy => false
+  property :silo,    Text, :lazy => false
   
   validates_presence_of :headers, :params, :body, :path, :md5
   
@@ -30,6 +31,10 @@ class Pingback
                   "sqlite3:///#{File.dirname __FILE__}/#{ENV['RACK_ENV']}.sqlite3"
     DataMapper.setup :default, db_location
     DataMapper.auto_upgrade!
+  end
+  
+  def self.in_silo(silo)
+    all :silo => silo
   end
   
   def self.next
