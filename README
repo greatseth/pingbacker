@@ -24,10 +24,10 @@ The PingbackReplayer usage is shown in pingback_replayer.rb.
 
 # Ackknowledgements
 
-The work on this app originally started at HD Cloud, a video conversion provider. 
+The work on this app originally started at HD Cloud(http://hdcloud.com), a video conversion provider. 
 That work was resurrected and continued(including creation of the 
 PingbackReplayer and adding the necessary interfaces to the Pingbacker app 
-for that to work) to support development of the Drop.io Rich Media Backbone 
+for that to work) to support development of the Drop.io Rich Media Backbone(http://backbone.drop.io) 
 which integrates with several third party service providers when providing 
 conversion services.
 
