@@ -11,20 +11,22 @@ configure do
 end
 
 class Pingbacker < Sinatra::Base
+  SILO_HEADER_KEY = "X-Pingbacker-Silo"
+  
   get "/" do
     redirect "/pingbacks"
   end
   
-  get "/pingbacks" do
-    output = Pingback.all(:order => :id.desc).map do |x|
+  get "/pingbacks/:silo" do
+    output = Pingback.in_silo(params[:silo]).all(:order => :id.desc).map do |x|
       CGI.escapeHTML x.body
     end.join("\n\n")
     
     %{<pre>#{output}</pre>}
   end
   
-  get "/pingbacks/next" do
-    @pingback = Pingback.next
+  get "/pingbacks/:silo/next" do
+    @pingback = Pingback.in_silo(params[:silo]).next
     
     if @pingback
       content_type "application/json"
@@ -42,7 +44,8 @@ class Pingbacker < Sinatra::Base
       :params  => params.to_json,
       :headers => request.env.to_json,
       :body    => request.body.read,
-      :path    => request.path
+      :path    => request.path,
+      :silo    => request.env[SILO_HEADER_KEY]
     
     # TODO figure out how to use dm-validations and callbacks :\
     @pingback.make_md5
@@ -54,8 +57,8 @@ class Pingbacker < Sinatra::Base
     end
   end
   
-  delete "/pingbacks" do
-    Pingback.all.destroy
+  delete "/pingbacks/:silo" do
+    Pingback.in_silo(params[:silo]).destroy
     200
   end
 end

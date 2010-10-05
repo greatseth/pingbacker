@@ -5,6 +5,8 @@ require 'bson'
 require 'pingbacker'
 
 class PingbackerTest < Test::Unit::TestCase
+  DEFAULT_SILO = 'test'
+  
   include Rack::Test::Methods
   def app; Pingbacker; end
   
@@ -16,9 +18,13 @@ class PingbackerTest < Test::Unit::TestCase
   
   test "receiving pinbacks" do
     assert_equal 0, Pingback.count
+    assert_equal 0, Pingback.in_silo(DEFAULT_SILO).count
+    assert_equal 0, Pingback.in_silo('other').count
     ping!
     assert last_response.ok?
     assert_equal 1, Pingback.count
+    assert_equal 1, Pingback.in_silo(DEFAULT_SILO).count
+    assert_equal 0, Pingback.in_silo('other').count
   end
   
   test "getting next pingback" do
@@ -28,7 +34,7 @@ class PingbackerTest < Test::Unit::TestCase
     ping!
     assert last_response.ok?
     
-    pingback = Pingback.next
+    pingback = Pingback.in_silo(DEFAULT_SILO).next
     assert_not_nil pingback
     assert_not_nil pingback.parsed(:params)
     default_request_headers.each do |k,v|
@@ -36,6 +42,9 @@ class PingbackerTest < Test::Unit::TestCase
     end
     assert_equal default_pingback_body, pingback.body
     assert_equal last_pingback_path, pingback.path
+    
+    next! 'other'
+    assert last_response.not_found?
     
     next!
     assert last_response.ok?
@@ -58,16 +67,19 @@ class PingbackerTest < Test::Unit::TestCase
   
   test "clearing pingbacks" do
     assert_equal 0, Pingback.count
+    assert_equal 0, Pingback.in_silo(DEFAULT_SILO).count
     ping!
     assert last_response.ok?
     assert_equal 1, Pingback.count
-    delete '/pingbacks'
+    assert_equal 1, Pingback.in_silo(DEFAULT_SILO).count
+    delete "/pingbacks/#{CGI.escape DEFAULT_SILO}"
     assert last_response.ok?
     assert_equal 0, Pingback.count
+    assert_equal 0, Pingback.in_silo(DEFAULT_SILO).count
   end
   
   test "listing pingbacks" do
-    get '/pingbacks'
+    get "/pingbacks/#{CGI.escape DEFAULT_SILO}"
     assert last_response.ok?
   end
   
@@ -75,7 +87,9 @@ class PingbackerTest < Test::Unit::TestCase
   
   def ping!(options = {})
     params   = options[:params]  || {}
-    rack_env = default_request_headers.merge(options[:headers] || {})
+    rack_env = default_request_headers.merge(
+      options[:headers] || {}
+    )
     
     # without this, Rack parses the body into params.. 
     # seems like a bug, but haven't probed Rack enought to know for sure
@@ -93,8 +107,8 @@ class PingbackerTest < Test::Unit::TestCase
     response
   end
   
-  def next!
-    get '/pingbacks/next'
+  def next!(silo = DEFAULT_SILO)
+    get "/pingbacks/#{CGI.escape silo}/next"
   end
   
   def default_pingback_body
@@ -102,7 +116,8 @@ class PingbackerTest < Test::Unit::TestCase
   end
   
   def default_request_headers
-    { "Content-Type" => "application/xml" }
+    { "Content-Type" => "application/xml",
+      Pingbacker::SILO_HEADER_KEY => DEFAULT_SILO }
   end
   
   def default_pingback_path
