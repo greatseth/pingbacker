@@ -16,6 +16,7 @@ require 'active_support'
 require 'httparty'
 require 'json'
 require 'pingback'
+require 'cgi'
 
 class PingbackReplayer
   attr_reader   :pingback
@@ -41,7 +42,7 @@ end
 
 class PingbackFetcher
   include HTTParty
-  base_uri "http://pingbacker.heroku.com"
+  base_uri ENV['PINGBACKER_BASE_URI']
   
   attr_reader :latest_pingback
   attr_reader :silo
