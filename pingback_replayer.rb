@@ -54,10 +54,12 @@ class PingbackFetcher
   end
   
   def fetch
-    print "fetching latest pingback... "
+    path = "/silos/#{CGI.escape silo}/pingbacks/next"
+    
+    print "fetching latest pingback... looking in #{self.class.base_uri}#{path}... "
     
     # TODO extract URL generation from tests for reuse
-    response = self.class.get "/silos/#{CGI.escape silo}/pingbacks/next"
+    response = self.class.get path
     
     puts "#{response.code} #{response.headers["Etag"]}"
     
