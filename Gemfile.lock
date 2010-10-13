@@ -66,11 +66,11 @@ specs:
 - activesupport: 
     version: 3.0.0
 - addressable: 
-    version: 2.2.0
+    version: 2.2.2
 - bson: 
-    version: 1.0.7
+    version: "1.1"
 - bson_ext: 
-    version: 1.0.7
+    version: "1.1"
 - crack: 
     version: 0.1.8
 - data_objects: 
@@ -78,21 +78,21 @@ specs:
 - extlib: 
     version: 0.9.15
 - dm-core: 
-    version: 1.0.0
+    version: 1.0.2
 - dm-do-adapter: 
-    version: 1.0.0
+    version: 1.0.2
 - dm-migrations: 
-    version: 1.0.0
+    version: 1.0.2
 - do_postgres: 
     version: 0.10.2
 - dm-postgres-adapter: 
-    version: 1.0.0
+    version: 1.0.2
 - do_sqlite3: 
     version: 0.10.2
 - dm-sqlite-adapter: 
-    version: 1.0.0
+    version: 1.0.2
 - dm-validations: 
-    version: 1.0.0
+    version: 1.0.2
 - gemcutter: 
     version: 0.6.1
 - json_pure: 
@@ -108,7 +108,7 @@ specs:
 - rack: 
     version: 1.2.1
 - rack-test: 
-    version: 0.5.4
+    version: 0.5.6
 - redgreen: 
     version: 1.2.2
 - sinatra: 
